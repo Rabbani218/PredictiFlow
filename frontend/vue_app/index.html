@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PredictiFlow — Models</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 24px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ddd; padding: 8px; }
+      th { background: #f4f4f4; }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>PredictiFlow — Models</h1>
+      <p>Lists registered models from the backend registry.</p>
+      <button @click="fetchModels">Refresh</button>
+      <table v-if="models.length">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Uploaded</th><th>Download</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="m in models" :key="m.id">
+            <td>{{m.id}}</td>
+            <td>{{m.name}}</td>
+            <td>{{m.uploaded_at}}</td>
+            <td><a :href="downloadUrl(m.id)">download</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else>No models found.</p>
+    </div>
+
+    <script>
+    const { createApp } = Vue
+    createApp({
+      data() { return { models: [] } },
+      methods: {
+        async fetchModels(){
+          try{
+            const r = await fetch('/models')
+            if(!r.ok){ throw new Error('Fetch failed') }
+            this.models = await r.json()
+          }catch(e){ alert('Failed to fetch models: '+e) }
+        },
+        downloadUrl(id){ return `/models/${id}/download` }
+      },
+      mounted(){ this.fetchModels() }
+    }).mount('#app')
+    </script>
+  </body>
+</html>

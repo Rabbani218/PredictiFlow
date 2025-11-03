@@ -1,0 +1,26 @@
+name: predictiflow
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - scikit-learn
+  - statsmodels
+  - plotly
+  - streamlit
+  - uvicorn
+  - fastapi
+  - jupyter
+  - ipykernel
+  - cython
+  - setuptools
+  - wheel
+  - Cython
+  - pip:
+    - -r backend/requirements.txt
+    - -r frontend/requirements.txt
+    - rq
+    - redis
+    - prophet
