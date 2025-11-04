@@ -8,11 +8,19 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / 'backend'))
 def test_registry_roundtrip(tmp_path, monkeypatch):
     tmp_db = tmp_path / 'test_registry.db'
     tmp_models = tmp_path / 'models'
-    os.environ['PREDICTIFLOW_REGISTRY_DB'] = str(tmp_db)
-    os.environ['PREDICTIFLOW_MODELS_DIR'] = str(tmp_models)
 
-    # Import after env override so registry picks up the paths
-    from app.registry import register_model, list_models, get_model, get_model_file_path
+    # Import module first
+    from app.registry import (
+        set_registry_paths, register_model, list_models, get_model, 
+        get_model_file_path, init_registry, DB_PATH, MODELS_DIR
+    )
+    
+    # Set paths and initialize
+    set_registry_paths(tmp_db, tmp_models)
+    init_registry(force_create=True)
+    
+    print(f"Using DB path: {DB_PATH}")
+    print(f"Using models dir: {MODELS_DIR}")
 
     # create a fake model file content
     content = b"dummy model"
@@ -21,15 +29,23 @@ def test_registry_roundtrip(tmp_path, monkeypatch):
     # register
     model_id = register_model(model_name, filename, content, metadata={"test": True})
     assert isinstance(model_id, int)
+    print(f"Registered model with ID: {model_id}")
+    
     models = list_models()
-    assert any(m['id'] == model_id for m in models)
+    print(f"Listed models: {models}")
+    assert models, "list_models() returned empty list"
+    assert any(m['id'] == model_id for m in models), f"Model {model_id} not found in {models}"
+    
     m = get_model(model_id)
+    assert m is not None, "get_model() returned None"
     assert m['name'] == model_name
+    
     p = get_model_file_path(m['filename'])
-    assert p is not None and os.path.exists(p)
-
+    assert p is not None, "get_model_file_path() returned None"
+    assert os.path.exists(p), f"Model file {p} does not exist"
+    
     # cleanup file
     try:
-        os.remove(p)
-    except Exception:
-        pass
+        os.unlink(p)
+    except Exception as e:
+        print(f"Failed to clean up file {p}: {e}")

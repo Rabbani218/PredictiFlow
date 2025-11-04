@@ -8,9 +8,13 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / 'backend'))
 def _make_client_with_tmp_registry(tmp_path):
     tmp_db = tmp_path / 'test_registry.db'
     tmp_models = tmp_path / 'models'
-    os.environ['PREDICTIFLOW_REGISTRY_DB'] = str(tmp_db)
-    os.environ['PREDICTIFLOW_MODELS_DIR'] = str(tmp_models)
-    # Import app after setting env so registry is configured with tmp paths
+    # Import registry first to set paths before any other imports
+    from app.registry import set_registry_paths, init_registry
+    
+    set_registry_paths(tmp_db, tmp_models)
+    init_registry(force_create=True)
+    
+    # Import app after registry is configured
     from app.main import app
     from fastapi.testclient import TestClient
     return TestClient(app)
