@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from io import BytesIO
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 import json
 
 from app.db import create_job, set_job_running, update_job_result, get_job, list_jobs
@@ -139,7 +139,7 @@ async def api_list_models(limit: int = 50):
 
 
 @app.post("/models")
-async def api_upload_model(file: UploadFile = File(...), name: str | None = None):
+async def api_upload_model(file: UploadFile = File(...), name: Optional[str] = None):
     """Upload a model artifact and register it in the registry."""
     contents = await file.read()
     model_name = name or file.filename

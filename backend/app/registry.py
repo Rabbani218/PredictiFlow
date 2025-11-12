@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timezone
 import threading
 import os
-from typing import Union
+from typing import Union, Optional
 
 # Allow overriding the registry DB path and models directory via environment variables
 ROOT = Path(__file__).resolve().parents[2]
@@ -90,7 +90,7 @@ def init_registry(force_create=False):
                 conn.close()
 
 
-def register_model(name: str, filename: str, content: bytes, metadata: dict | None = None) -> int:
+def register_model(name: str, filename: str, content: bytes, metadata: Optional[dict] = None) -> int:
     """Save model file and register metadata. Returns model id."""
     init_registry()
     if metadata is None:
