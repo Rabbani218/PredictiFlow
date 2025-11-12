@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 # Optional imports for heavier models. If not available we fall back to simple baselines.
 try:
@@ -372,7 +372,7 @@ def _detect_value_column(df: pd.DataFrame):
     return None
 
 
-async def forecast_multi_series(df: pd.DataFrame, periods: int = 30, series_col: str | None = None) -> Dict:
+async def forecast_multi_series(df: pd.DataFrame, periods: int = 30, series_col: Optional[str] = None) -> Dict:
     """Forecast multiple series in one DataFrame. If `series_col` is None the function will try to detect
     a categorical/grouping column automatically. Returns a dict mapping series_key -> forecast_result (same shape as forecast_timeseries output).
     """
